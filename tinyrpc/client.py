@@ -78,10 +78,10 @@ class RPCClient(object):
         is raised.
 
         :param str method: Name of the method to call.
-        :param list args: Arguments to pass to the method.
-        :param dict kwargs: Keyword arguments to pass to the method.
         :param bool one_way: Whether or not a reply is desired.
-        :return: The result of the call
+        :param args: Positional arguments to pass to the method.
+        :param kwargs: Keyword arguments to pass to the method.
+        :return: The result of the call.
         :rtype: any
         """
         req = self.protocol.create_request(method, args, kwargs, one_way)
