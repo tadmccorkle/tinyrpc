@@ -78,9 +78,9 @@ def test_proxy_calls_correct_method(
 
     mock_client.call.assert_called_with(
         prefix + method_name,
-        method_args,
-        method_kwargs,
-        one_way=one_way_setting
+        one_way_setting,
+        *method_args,
+        **method_kwargs
     )
 
 
@@ -88,7 +88,7 @@ def test_client_uses_correct_protocol(
         client, mock_protocol, method_name, method_args, method_kwargs,
         one_way_setting
 ):
-    client.call(method_name, method_args, method_kwargs, one_way_setting)
+    client.call(method_name, one_way_setting, method_args, method_kwargs)
 
     assert mock_protocol.create_request.called
 
@@ -97,7 +97,7 @@ def test_client_uses_correct_transport(
         client, mock_protocol, method_name, method_args, method_kwargs,
         one_way_setting, mock_transport
 ):
-    client.call(method_name, method_args, method_kwargs, one_way_setting)
+    client.call(method_name, one_way_setting, method_args, method_kwargs)
     assert mock_transport.send_message.called
 
 
@@ -107,7 +107,7 @@ def test_client_passes_correct_reply(
 ):
     transport_return = '023hoisdfh'
     mock_transport.send_message = Mock(return_value=transport_return)
-    client.call(method_name, method_args, method_kwargs, one_way_setting)
+    client.call(method_name, one_way_setting, method_args, method_kwargs)
     if one_way_setting:
         mock_protocol.parse_reply.assert_not_called()
     else:
@@ -123,7 +123,7 @@ def test_client_raises_error_replies(
     mock_protocol.parse_reply = Mock(return_value=error_response)
 
     if not one_way_setting:
-        client.call(method_name, method_args, method_kwargs, one_way_setting)
+        client.call(method_name, one_way_setting, method_args, method_kwargs)
         assert mock_protocol.raise_error.call_args is not None
         args, kwargs = mock_protocol.raise_error.call_args
         assert isinstance(args[0], RPCErrorResponse)
@@ -150,7 +150,7 @@ def test_client_raises_indirect_error_replies(
     if not one_way_setting:
         with pytest.raises(MockException):
             client.call(
-                method_name, method_args, method_kwargs, one_way_setting
+                method_name, one_way_setting, method_args, method_kwargs
             )
 
 
@@ -172,6 +172,6 @@ def test_client_send_binary_message(
     req = Mock(RPCRequest)
     req.serialize.return_value = u'unicode not acceptable'
     mock_protocol.create_request.return_value = req
-    client.call(method_name, method_args, method_kwargs, one_way_setting)
+    client.call(method_name, one_way_setting, method_args, method_kwargs)
     assert mock_transport.send_message.called
     assert isinstance(mock_transport.send_message.call_args[0][0], bytes)

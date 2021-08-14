@@ -70,7 +70,7 @@ class RPCClient(object):
         return response
 
     def call(
-            self, method: str, args: List, kwargs: Dict, one_way: bool = False
+            self, method: str, one_way: bool = False, *args, **kwargs
     ) -> Any:
         """Calls the requested method and returns the result.
 
@@ -175,6 +175,6 @@ class RPCProxy(object):
         name ``name`` on the client associated with the proxy.
         """
         proxy_func = lambda *args, **kwargs: self.client.call(
-            self.prefix + name, args, kwargs, one_way=self.one_way
+            self.prefix + name, self.one_way, *args, **kwargs
         )
         return proxy_func
